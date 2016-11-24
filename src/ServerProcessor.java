@@ -1,13 +1,12 @@
 import java.io.*;
 import java.net.Socket;
-import java.util.Objects;
 
 public class ServerProcessor {
 
         private Socket s;
         private InputStream is;
         private OutputStream os;
-        private String index;
+        private String fileName;
 
         public ServerProcessor(Socket s) throws IOException {
             this.s = s;
@@ -24,22 +23,25 @@ public class ServerProcessor {
         private void readInputStream() throws IOException {
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String s = br.readLine();
-            System.out.println(s);
-            index = s;
-            while (s.trim().length() != 0){
-//                System.out.println(s);
-                s = br.readLine();
-            }
+            String[] s1 = s.split(" ");
+            String s2 = s1[1];
+            if (s2.length()>0) {
+                fileName = s2.substring(1, s2.length());
+            }else fileName = "";
         }
 
     private void writeOutputStream() throws IOException {
-        if (Objects.equals(index, "GET /index.html HTTP/1.1")) {
-            String s = "<html><head><title> Test </title></head> <body><H1 align=center>Hello World!</H1></body></html>";
-            os.write(s.getBytes());
+        File file = new File(fileName);
+        if (file.exists()) {
+            FileReader fr = new FileReader(file);
+            BufferedReader bfr = new BufferedReader(fr);
+            String line;
+            while ((line = bfr.readLine()) != null) {
+                os.write(line.getBytes());
+            }
             os.flush();
         }else{
-            String s = "<html><h2>404</h2></html>";
-            os.write(s.getBytes());
+            os.write("<html><h2>404</h2></html>".getBytes());
             os.flush();
         }
     }
