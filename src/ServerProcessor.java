@@ -35,10 +35,18 @@ public class ServerProcessor {
         if (file.exists()) {
             FileReader fr = new FileReader(file);
             BufferedReader bfr = new BufferedReader(fr);
-            String line;
-            while ((line = bfr.readLine()) != null) {
-                os.write(line.getBytes());
+            String text="";
+            String i;
+            while ((i = bfr.readLine()) != null) {
+                text = text + i + "\r\n";
             }
+            String response = "HTTP/1.1 200 OK\r\n" +
+                    "Server: NastayServer\r\n" +
+                    "Content-Type: text/html\r\n" +
+                    "Content-Length: " + text.length() + "\r\n" +
+                    "Connection: close\r\n\r\n";
+            String result = response + text;
+            os.write(result.getBytes());
             os.flush();
         }else{
             os.write("<html><h2>404</h2></html>".getBytes());
